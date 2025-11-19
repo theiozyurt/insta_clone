@@ -3,6 +3,8 @@ import 'package:insta_clone/providers/user_provider.dart';
 import 'package:insta_clone/utils/global_variables.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/login_screen.dart';
+
 class ResponsiveLayout extends StatefulWidget {
   final Widget webScreenLayout;
   final Widget mobileScreenLayout;
@@ -27,7 +29,30 @@ class _ResponsiveLayoutState extends State<ResponsiveLayout> {
 
   void addData() async {
     UserProvider _userProvider = Provider.of(context, listen: false);
-    await _userProvider.refreshUser();
+    try {
+      // Kullanıcı verisini çekmeye çalış
+      await _userProvider.refreshUser();
+
+    } catch (err) {
+      // HATA YAKALANDI! (User.fromSnap hata fırlattı)
+
+      // 1. Snackbar göster
+      if (context.mounted) { // Context hala geçerli mi kontrolü
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Kullanıcı bulunamadı, lütfen tekrar giriş yapın."),
+            backgroundColor: Colors.red,
+          ),
+        );
+
+        // 2. Login Ekranına Gönder (önceki sayfaları silerek)
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(), // LoginScreen adın neyse onu yaz
+          ),
+        );
+      }
+    }
   }
 
   @override

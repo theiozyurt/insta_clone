@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:insta_clone/resources/firestore_methods.dart';
+import 'package:insta_clone/screens/comments_screen.dart';
 import 'package:insta_clone/utils/colors.dart';
 import 'package:insta_clone/widgets/like_animation.dart';
 import 'package:intl/intl.dart';
@@ -85,7 +87,12 @@ class _PostCardState extends State<PostCard> {
             ),
           ),
           GestureDetector(
-            onDoubleTap: () {
+            onDoubleTap: () async {
+              await FirestoreMethods().likePosts(
+                widget.snap['postId'],
+                user!.uid,
+                widget.snap['likes'],
+              );
               setState(() {
                 isLikeAnimating = true;
               });
@@ -127,16 +134,29 @@ class _PostCardState extends State<PostCard> {
                   isAnimating: widget.snap['likes'].contains(user?.uid),
                   child: Center(
                     child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.favorite_border),
+                      onPressed: () async {
+                        await FirestoreMethods().likePosts(
+                          widget.snap['postId'],
+                          user!.uid,
+                          widget.snap['likes'],
+                        );
+                      },
+                      icon: widget.snap['likes'].contains(user?.uid)
+                          ? const Icon(Icons.favorite, color: Colors.red)
+                          : const Icon(Icons.favorite_border),
                     ),
                   ),
                 ),
+
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => CommentsScreen()));
+
+                  },
                   icon: const Icon(Icons.comment_outlined),
                 ),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.send)),
+                IconButton(onPressed: () {
+                }, icon: const Icon(Icons.send)),
                 Expanded(
                   child: Align(
                     alignment: Alignment.bottomRight,
@@ -150,7 +170,7 @@ class _PostCardState extends State<PostCard> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,

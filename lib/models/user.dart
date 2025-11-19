@@ -31,6 +31,12 @@ class User {
 
 
   static User fromSnap(DocumentSnapshot snap) {
+    var data = snap.data();
+
+    if (data == null) {
+      throw Exception("Kullanıcı verisi bulunamadı!");
+    }
+    
     var snapshot = snap.data() as Map<String, dynamic>;
     return User(
       username: snapshot['username'],
